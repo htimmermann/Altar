@@ -1,6 +1,6 @@
 # Altar – macOS Menu Bar Pomodoro App
 
-Altar is a native macOS menu bar Pomodoro / focus timer inspired by apps like [Be Focused Pro](https://apps.apple.com/us/app/be-focused-pro-focus-timer/id961632517?mt=12). It lets you:
+Altar is a native macOS menu bar Pomodoro / focus timer. It lets you:
 
 - Run a configurable Pomodoro-style focus timer from the macOS menu bar
 - Track focus time against simple tasks
