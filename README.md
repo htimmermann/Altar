@@ -1,1 +1,1 @@
-# Altar
+# Altar - Time/Pomodoro (local)
