@@ -14,6 +14,7 @@ final class TimerViewModel: ObservableObject {
     @Published var isRunning: Bool = false
     @Published var completedFocusSessionsInCycle: Int = 0
     @Published var activeTask: FocusTask?
+    @Published var showTasksTab: Bool = false
 
     private var workTimer: Timer?
     private var sessionStartDate: Date?
@@ -24,7 +25,7 @@ final class TimerViewModel: ObservableObject {
     var shortBreakMinutes: Int = 5
     var longBreakMinutes: Int = 15
     var sessionsBeforeLongBreak: Int = 4
-    var autoStartNextSession: Bool = true
+    var autoStartNextSession: Bool = false
 
     var displayText: String {
         let m = remainingSeconds / 60
@@ -47,18 +48,16 @@ final class TimerViewModel: ObservableObject {
         longBreakMinutes = settings.longBreakMinutes
         sessionsBeforeLongBreak = settings.sessionsBeforeLongBreak
         autoStartNextSession = settings.autoStartNextSession
+        showTasksTab = settings.showTasksTab
     }
 
     func start() {
         if currentSessionType == nil {
-            startFocus()
-            return
+            currentSessionType = .focus
+            remainingSeconds = focusDurationMinutes * 60
+            sessionStartDate = Date()
         }
-        isRunning = true
-        workTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            self?.tick()
-        }
-        RunLoop.main.add(workTimer!, forMode: .common)
+        startTimer()
     }
 
     func pause() {
@@ -75,6 +74,7 @@ final class TimerViewModel: ObservableObject {
     }
 
     func skip() {
+        pause()
         let type = currentSessionType
         let start = sessionStartDate ?? Date()
         let end = Date()
@@ -89,25 +89,24 @@ final class TimerViewModel: ObservableObject {
             )
             historyStore.append(record: record)
         }
-
         advanceToNextSession()
     }
 
-    private func startFocus() {
-        currentSessionType = .focus
-        remainingSeconds = focusDurationMinutes * 60
-        sessionStartDate = Date()
+    private func startTimer() {
+        workTimer?.invalidate()
         isRunning = true
-        workTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
             self?.tick()
         }
-        RunLoop.main.add(workTimer!, forMode: .common)
+        RunLoop.main.add(timer, forMode: .common)
+        workTimer = timer
     }
 
     private func tick() {
         guard isRunning else { return }
         remainingSeconds -= 1
         if remainingSeconds <= 0 {
+            remainingSeconds = 0
             completeCurrentSession()
         }
     }
@@ -166,13 +165,7 @@ final class TimerViewModel: ObservableObject {
         sessionStartDate = Date()
 
         if autoStartNextSession {
-            isRunning = true
-            workTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-                self?.tick()
-            }
-            RunLoop.main.add(workTimer!, forMode: .common)
-        } else {
-            isRunning = false
+            startTimer()
         }
     }
 

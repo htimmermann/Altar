@@ -9,18 +9,30 @@ import AppKit
 import SwiftUI
 
 struct MenuBarContentView: View {
+    @EnvironmentObject var timerViewModel: TimerViewModel
     @State private var selectedTab = 0
+
+    private var tabs: [(String, Int)] {
+        var result: [(String, Int)] = [("Timer", 0)]
+        if timerViewModel.showTasksTab {
+            result.append(("Tasks", 1))
+        }
+        result.append(("Reports", 2))
+        result.append(("Settings", 3))
+        return result
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             Picker("", selection: $selectedTab) {
-                Text("Timer").tag(0)
-                Text("Tasks").tag(1)
-                Text("Reports").tag(2)
-                Text("Settings").tag(3)
+                ForEach(tabs, id: \.1) { tab in
+                    Text(tab.0).tag(tab.1)
+                }
             }
             .pickerStyle(.segmented)
-            .padding()
+            .padding(.horizontal, 12)
+            .padding(.top, 10)
+            .padding(.bottom, 6)
 
             Group {
                 switch selectedTab {
@@ -31,7 +43,7 @@ struct MenuBarContentView: View {
                 default: TimerView()
                 }
             }
-            .frame(minWidth: 300, minHeight: 280)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             Divider()
 
@@ -40,8 +52,9 @@ struct MenuBarContentView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
-            .padding(.bottom, 8)
+            .font(.caption)
+            .padding(.vertical, 6)
         }
-        .frame(width: 320, height: 400)
+        .frame(width: 280, height: 340)
     }
 }

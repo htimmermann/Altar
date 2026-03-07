@@ -27,12 +27,14 @@ struct TimerSettings: Codable {
     var longBreakMinutes: Int
     var sessionsBeforeLongBreak: Int
     var autoStartNextSession: Bool
+    var showTasksTab: Bool
 
     static let `default` = TimerSettings(
         focusDurationMinutes: 25,
         shortBreakMinutes: 5,
         longBreakMinutes: 15,
         sessionsBeforeLongBreak: 4,
-        autoStartNextSession: true
+        autoStartNextSession: false,
+        showTasksTab: false
     )
 }

@@ -68,4 +68,14 @@ final class HistoryStore: ObservableObject {
         }
         return result
     }
+
+    func focusMinutesByDay(days: Int) -> [(date: Date, minutes: Int)] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        return (0..<days).reversed().map { offset in
+            let day = calendar.date(byAdding: .day, value: -offset, to: today)!
+            let secs = totalFocusSeconds(for: day)
+            return (date: day, minutes: secs / 60)
+        }
+    }
 }
