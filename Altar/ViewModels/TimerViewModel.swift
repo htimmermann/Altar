@@ -60,21 +60,24 @@ final class TimerViewModel: ObservableObject {
         weeklyGoalMinutes = settings.weeklyGoalMinutes
     }
 
-    // MARK: - Screen sleep / lock detection
+    // MARK: - Screen lock / sleep detection
 
     private func observeScreenSleep() {
+        // Direct lock/unlock events (fires immediately on Cmd+Ctrl+Q or menu lock)
+        DistributedNotificationCenter.default().addObserver(
+            self, selector: #selector(handleLock),
+            name: NSNotification.Name("com.apple.screenIsLocked"), object: nil
+        )
+
+        // System sleep (lid close, sleep menu item)
         let ws = NSWorkspace.shared.notificationCenter
-        ws.addObserver(self, selector: #selector(handleSleep), name: NSWorkspace.screensDidSleepNotification, object: nil)
-        ws.addObserver(self, selector: #selector(handleWake), name: NSWorkspace.screensDidWakeNotification, object: nil)
+        ws.addObserver(self, selector: #selector(handleLock), name: NSWorkspace.willSleepNotification, object: nil)
+        ws.addObserver(self, selector: #selector(handleLock), name: NSWorkspace.screensDidSleepNotification, object: nil)
     }
 
-    @objc private func handleSleep() {
+    @objc private func handleLock() {
         wasRunningBeforeSleep = isRunning
         if isRunning { pause() }
-    }
-
-    @objc private func handleWake() {
-        // Stay paused — user decides when to resume
     }
 
     // MARK: - Timer controls
