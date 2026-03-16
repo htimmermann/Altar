@@ -5,6 +5,7 @@
 //  Pomodoro timer state machine and session logic.
 //
 
+import AppKit
 import Foundation
 import Combine
 
@@ -15,11 +16,15 @@ final class TimerViewModel: ObservableObject {
     @Published var completedFocusSessionsInCycle: Int = 0
     @Published var activeTask: FocusTask?
     @Published var showTasksTab: Bool = false
+    @Published var barColorHex: String = "007AFF"
+    @Published var dailyGoalMinutes: Int = 120
+    @Published var weeklyGoalMinutes: Int = 600
 
     private var workTimer: Timer?
     private var sessionStartDate: Date?
     private let historyStore: HistoryStore
     private let taskStore: TaskStore
+    private var wasRunningBeforeSleep = false
 
     var focusDurationMinutes: Int = 25
     var shortBreakMinutes: Int = 5
@@ -40,6 +45,7 @@ final class TimerViewModel: ObservableObject {
     init(historyStore: HistoryStore, taskStore: TaskStore) {
         self.historyStore = historyStore
         self.taskStore = taskStore
+        observeScreenSleep()
     }
 
     func configure(settings: TimerSettings) {
@@ -49,7 +55,29 @@ final class TimerViewModel: ObservableObject {
         sessionsBeforeLongBreak = settings.sessionsBeforeLongBreak
         autoStartNextSession = settings.autoStartNextSession
         showTasksTab = settings.showTasksTab
+        barColorHex = settings.barColorHex
+        dailyGoalMinutes = settings.dailyGoalMinutes
+        weeklyGoalMinutes = settings.weeklyGoalMinutes
     }
+
+    // MARK: - Screen sleep / lock detection
+
+    private func observeScreenSleep() {
+        let ws = NSWorkspace.shared.notificationCenter
+        ws.addObserver(self, selector: #selector(handleSleep), name: NSWorkspace.screensDidSleepNotification, object: nil)
+        ws.addObserver(self, selector: #selector(handleWake), name: NSWorkspace.screensDidWakeNotification, object: nil)
+    }
+
+    @objc private func handleSleep() {
+        wasRunningBeforeSleep = isRunning
+        if isRunning { pause() }
+    }
+
+    @objc private func handleWake() {
+        // Stay paused — user decides when to resume
+    }
+
+    // MARK: - Timer controls
 
     func start() {
         if currentSessionType == nil {

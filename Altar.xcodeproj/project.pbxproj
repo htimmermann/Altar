@@ -24,6 +24,7 @@
 		A1000F000000000000000001 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000F000000000000000001; };
 		A10010000000000000000001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20010000000000000000001; };
 		A10011000000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20011000000000000000001; };
+		A10013000000000000000001 /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20013000000000000000001; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,7 @@
 		A20010000000000000000001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A20011000000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20012000000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A20013000000000000000001 /* ColorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelper.swift; sourceTree = "<group>"; };
 		A30001000000000000000001 /* Altar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Altar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -98,6 +100,7 @@
 				A20006000000000000000001 /* PersistenceService.swift */,
 				A20007000000000000000001 /* NotificationService.swift */,
 				A20008000000000000000001 /* SettingsManager.swift */,
+				A20013000000000000000001 /* ColorHelper.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -212,6 +215,7 @@
 				A1000E000000000000000001 /* TaskListView.swift in Sources */,
 				A1000F000000000000000001 /* ReportsView.swift in Sources */,
 				A10010000000000000000001 /* SettingsView.swift in Sources */,
+				A10013000000000000000001 /* ColorHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -41,27 +41,27 @@ final class HistoryStore: ObservableObject {
 
     func totalFocusSeconds(for date: Date) -> Int {
         sessions(for: date)
-            .filter { $0.type == .focus && $0.wasCompleted }
+            .filter { $0.type == .focus }
             .reduce(0) { $0 + $1.durationSeconds }
     }
 
     func totalFocusSeconds(in range: ClosedRange<Date>) -> Int {
         sessions(in: range)
-            .filter { $0.type == .focus && $0.wasCompleted }
+            .filter { $0.type == .focus }
             .reduce(0) { $0 + $1.durationSeconds }
     }
 
     func focusSessionsCount(for date: Date) -> Int {
-        sessions(for: date).filter { $0.type == .focus && $0.wasCompleted }.count
+        sessions(for: date).filter { $0.type == .focus }.count
     }
 
     func focusSessionsCount(in range: ClosedRange<Date>) -> Int {
-        sessions(in: range).filter { $0.type == .focus && $0.wasCompleted }.count
+        sessions(in: range).filter { $0.type == .focus }.count
     }
 
     func focusSecondsByTask(in range: ClosedRange<Date>) -> [UUID: Int] {
         var result: [UUID: Int] = [:]
-        for record in sessions(in: range) where record.type == .focus && record.wasCompleted {
+        for record in sessions(in: range) where record.type == .focus {
             if let taskId = record.taskId {
                 result[taskId, default: 0] += record.durationSeconds
             }

@@ -28,6 +28,9 @@ struct TimerSettings: Codable {
     var sessionsBeforeLongBreak: Int
     var autoStartNextSession: Bool
     var showTasksTab: Bool
+    var barColorHex: String
+    var dailyGoalMinutes: Int
+    var weeklyGoalMinutes: Int
 
     static let `default` = TimerSettings(
         focusDurationMinutes: 25,
@@ -35,6 +38,9 @@ struct TimerSettings: Codable {
         longBreakMinutes: 15,
         sessionsBeforeLongBreak: 4,
         autoStartNextSession: false,
-        showTasksTab: false
+        showTasksTab: false,
+        barColorHex: "007AFF",
+        dailyGoalMinutes: 120,
+        weeklyGoalMinutes: 600
     )
 }
