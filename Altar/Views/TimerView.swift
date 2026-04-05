@@ -25,7 +25,7 @@ struct TimerView: View {
 
             HStack(spacing: 12) {
                 if timerViewModel.isRunning {
-                    Button("Pause") { timerViewModel.pause() }
+                    Button("Pause") { timerViewModel.pauseRecordingPartialFocus() }
                 } else {
                     Button("Start") { timerViewModel.start() }
                 }

@@ -22,6 +22,8 @@ final class TimerViewModel: ObservableObject {
 
     private var workTimer: Timer?
     private var sessionStartDate: Date?
+    /// Focus time already written to history for the current focus slot (pause/skip/complete chunks).
+    private var sessionRecordedFocusSeconds: Int = 0
     private let historyStore: HistoryStore
     private let taskStore: TaskStore
     private var wasRunningBeforeSleep = false
@@ -77,7 +79,10 @@ final class TimerViewModel: ObservableObject {
 
     @objc private func handleLock() {
         wasRunningBeforeSleep = isRunning
-        if isRunning { pause() }
+        pause()
+        if wasRunningBeforeSleep, currentSessionType == .focus {
+            appendFocusChunk(wasCompleted: false)
+        }
     }
 
     // MARK: - Timer controls
@@ -87,38 +92,58 @@ final class TimerViewModel: ObservableObject {
             currentSessionType = .focus
             remainingSeconds = focusDurationMinutes * 60
             sessionStartDate = Date()
+            sessionRecordedFocusSeconds = 0
         }
         startTimer()
     }
 
+    /// Stops the timer without recording partial focus time (used before recording completion chunks).
     func pause() {
         isRunning = false
         workTimer?.invalidate()
         workTimer = nil
     }
 
+    /// Pause from the UI or sleep: commits elapsed focus time so far to history and reports.
+    func pauseRecordingPartialFocus() {
+        pause()
+        if currentSessionType == .focus {
+            appendFocusChunk(wasCompleted: false)
+        }
+    }
+
     func reset() {
         pause()
+        if currentSessionType == .focus {
+            appendFocusChunk(wasCompleted: false)
+        }
+        sessionRecordedFocusSeconds = 0
         if let type = currentSessionType {
             remainingSeconds = durationSeconds(for: type)
+            sessionStartDate = Date()
         }
     }
 
     func skip() {
         pause()
-        let type = currentSessionType
-        let start = sessionStartDate ?? Date()
-        let end = Date()
-        if let t = type {
-            let record = SessionRecord(
-                taskId: activeTask?.id,
-                type: t,
-                startDate: start,
-                endDate: end,
-                durationSeconds: durationSeconds(for: t) - remainingSeconds,
-                wasCompleted: false
-            )
-            historyStore.append(record: record)
+        if let t = currentSessionType {
+            if t == .focus {
+                appendFocusChunk(wasCompleted: false)
+            } else {
+                let unrecorded = durationSeconds(for: t) - remainingSeconds
+                if unrecorded > 0, let start = sessionStartDate {
+                    let end = Date()
+                    let record = SessionRecord(
+                        taskId: activeTask?.id,
+                        type: t,
+                        startDate: start,
+                        endDate: end,
+                        durationSeconds: unrecorded,
+                        wasCompleted: false
+                    )
+                    historyStore.append(record: record)
+                }
+            }
         }
         advanceToNextSession()
     }
@@ -144,19 +169,10 @@ final class TimerViewModel: ObservableObject {
 
     private func completeCurrentSession() {
         pause()
-        guard let type = currentSessionType, let start = sessionStartDate else { return }
-        let end = Date()
-        let record = SessionRecord(
-            taskId: activeTask?.id,
-            type: type,
-            startDate: start,
-            endDate: end,
-            durationSeconds: durationSeconds(for: type),
-            wasCompleted: true
-        )
-        historyStore.append(record: record)
+        guard let type = currentSessionType else { return }
 
         if type == .focus {
+            appendFocusChunk(wasCompleted: true)
             if let taskId = activeTask?.id {
                 taskStore.incrementPomodoros(for: taskId)
                 if let t = taskStore.task(byId: taskId) {
@@ -169,6 +185,17 @@ final class TimerViewModel: ObservableObject {
                 body: "Time for a break."
             )
         } else {
+            guard let start = sessionStartDate else { return }
+            let end = Date()
+            let record = SessionRecord(
+                taskId: activeTask?.id,
+                type: type,
+                startDate: start,
+                endDate: end,
+                durationSeconds: durationSeconds(for: type),
+                wasCompleted: true
+            )
+            historyStore.append(record: record)
             NotificationService.shared.notify(
                 title: "Break complete",
                 body: "Ready for another focus session."
@@ -176,6 +203,25 @@ final class TimerViewModel: ObservableObject {
         }
 
         advanceToNextSession()
+    }
+
+    private func appendFocusChunk(wasCompleted: Bool) {
+        guard currentSessionType == .focus, let start = sessionStartDate else { return }
+        let slot = durationSeconds(for: .focus)
+        let elapsedUnrecorded = slot - remainingSeconds - sessionRecordedFocusSeconds
+        guard elapsedUnrecorded > 0 else { return }
+        let end = Date()
+        let record = SessionRecord(
+            taskId: activeTask?.id,
+            type: .focus,
+            startDate: start,
+            endDate: end,
+            durationSeconds: elapsedUnrecorded,
+            wasCompleted: wasCompleted
+        )
+        historyStore.append(record: record)
+        sessionRecordedFocusSeconds += elapsedUnrecorded
+        sessionStartDate = end
     }
 
     private func advanceToNextSession() {
@@ -192,6 +238,7 @@ final class TimerViewModel: ObservableObject {
         } else {
             currentSessionType = .focus
             remainingSeconds = focusDurationMinutes * 60
+            sessionRecordedFocusSeconds = 0
         }
         sessionStartDate = Date()
 
