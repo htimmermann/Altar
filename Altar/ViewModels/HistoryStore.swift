@@ -30,6 +30,11 @@ final class HistoryStore: ObservableObject {
         sessions.append(record)
     }
 
+    /// Writes the current session list immediately (e.g. before app termination; debounced saves may not have run yet).
+    func persistImmediately() {
+        persistence.saveHistory(sessions)
+    }
+
     func sessions(for date: Date) -> [SessionRecord] {
         let calendar = Calendar.current
         return sessions.filter { calendar.isDate($0.startDate, inSameDayAs: date) }

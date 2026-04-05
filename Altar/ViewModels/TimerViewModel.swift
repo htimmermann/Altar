@@ -50,6 +50,14 @@ final class TimerViewModel: ObservableObject {
         observeScreenSleep()
     }
 
+    /// Stops the timer and records any elapsed focus time not yet written to history (normal quit path).
+    func flushInFlightFocusForTermination() {
+        pause()
+        if currentSessionType == .focus {
+            appendFocusChunk(wasCompleted: false)
+        }
+    }
+
     func configure(settings: TimerSettings) {
         focusDurationMinutes = settings.focusDurationMinutes
         shortBreakMinutes = settings.shortBreakMinutes

@@ -21,18 +21,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
     private let taskStore = TaskStore()
     private let historyStore = HistoryStore()
+    private var timerViewModel: TimerViewModel?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let timerViewModel = TimerViewModel(historyStore: historyStore, taskStore: taskStore)
-        timerViewModel.configure(settings: SettingsManager.load())
+        let vm = TimerViewModel(historyStore: historyStore, taskStore: taskStore)
+        timerViewModel = vm
+        vm.configure(settings: SettingsManager.load())
 
         statusItemController = StatusItemController(
-            timerViewModel: timerViewModel,
+            timerViewModel: vm,
             taskStore: taskStore,
             historyStore: historyStore
         )
         statusItemController?.setup()
 
         NSApp.setActivationPolicy(.accessory)
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        timerViewModel?.flushInFlightFocusForTermination()
+        historyStore.persistImmediately()
     }
 }

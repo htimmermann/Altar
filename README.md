@@ -1,23 +1,6 @@
 # Altar – macOS Menu Bar Pomodoro App
 
-## V3
-
-- Auto-pause when laptop is locked or screen sleeps
-- Reports now include partially completed sessions (skipped, paused, etc.)
-- Duration settings are typeable text fields instead of steppers
-- Choosable bar chart color via a color picker in Settings
-- Report ranges expanded: 7 days, 30 days, All Time
-- Daily and weekly focus goals with a dotted goal line on the bar chart
-- Removed standalone "Today" view; chart always shows multi-day context
-
-## V2
-
-- Timer tick bug fixed (no more double-speed countdown)
-- Compact popover window (smaller footprint)
-- Tasks tab is now optional — off by default, toggle it on in Settings
-- Auto-start next session is off by default — timer stops at 00:00 and waits for you
-- Reports now include a daily bar chart showing focus minutes per day
-- Settings redesigned with all toggles in one place
+**Recent highlights:** partial focus time is saved when you pause or lock the screen; quitting the app flushes any in-flight focus minutes to disk. Older releases: see [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -110,8 +93,11 @@ Adjust durations, goals, bar color, and the Tasks tab in **Settings**.
 ## Notes
 
 - All data (tasks, history, settings) is stored locally under `~/Library/Application Support/Altar/`.
-- There is no server, sync, app/website blocking, or automation.
+- When you quit the app (e.g. **Quit Altar**), any in-flight focus time is saved to history immediately so the debounced writer cannot drop it.
+- There is no server, sync, app/website blocking, or automation. A hard crash can still lose the last few seconds before the next debounced save.
 
 ## License
 
-Personal use. Add a license here if you plan to share or open source it.
+SPDX-License-Identifier: MIT
+
+Full text: [LICENSE](LICENSE).
