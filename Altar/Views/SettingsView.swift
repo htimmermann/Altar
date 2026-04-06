@@ -30,9 +30,9 @@ struct SettingsView: View {
                 Divider()
 
                 Toggle("Auto-start next session", isOn: $settings.autoStartNextSession)
-                    .onChange(of: settings.autoStartNextSession) { _ in applySettings() }
+                    .onChange(of: settings.autoStartNextSession) { _, _ in applySettings() }
                 Toggle("Show Tasks tab", isOn: $settings.showTasksTab)
-                    .onChange(of: settings.showTasksTab) { _ in applySettings() }
+                    .onChange(of: settings.showTasksTab) { _, _ in applySettings() }
 
                 Divider()
 
@@ -41,7 +41,7 @@ struct SettingsView: View {
                     Spacer()
                     ColorPicker("", selection: $barColor, supportsOpacity: false)
                         .labelsHidden()
-                        .onChange(of: barColor) { _ in
+                        .onChange(of: barColor) { _, _ in
                             settings.barColorHex = barColor.hexString
                             applySettings()
                         }
@@ -68,7 +68,7 @@ struct SettingsView: View {
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 50)
                 .multilineTextAlignment(.trailing)
-                .onChange(of: value.wrappedValue) { _ in applySettings() }
+                .onChange(of: value.wrappedValue) { _, _ in applySettings() }
             Text("min").font(.caption).foregroundStyle(.secondary)
         }
     }
